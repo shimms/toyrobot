@@ -1,8 +1,12 @@
 #!/usr/bin/env ruby
 
-require 'optparse'
+DEVELOPMENT=true
 
 require './lib/toy_robot.rb'
+
+if DEVELOPMENT   
+   require 'byebug'
+end
 
 banner = <<-EOS
 
@@ -17,25 +21,13 @@ EOS
 
 puts banner
 
-DEFAULT_WIDTH, DEFAULT_HEIGHT = [5,5]
+options = ToyRobot::Cli.parse_options
 
-options = {:width => DEFAULT_WIDTH, :height => DEFAULT_HEIGHT}
+parser = ToyRobot::Parser.new
+reducer = ToyRobot::Reducer.new
 
-parser = OptionParser.new do|opts|
-   opts.banner = "Usage: toyrobot [options]"
+world = ToyRobot::World.new(reducer, parser, options[:height], options[:width])
+robot = ToyRobot::Robot.new(world)
 
-   opts.on('-h', '--height height', 'Height (optional) - defaults to 5') do |height|
-		options[:height] = height;
-   end
-
-   opts.on('-w', '--width width', 'Width (optional) - defaults to 5') do |width|
-		options[:width] = width;
-   end
-
-	opts.on('--help', '--help', 'Displays Help') do
-		puts opts
-		exit
-	end
-end
-
-parser.parse!
+cli = ToyRobot::Cli.new(robot)
+cli.start_interactive(world)
