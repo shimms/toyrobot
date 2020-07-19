@@ -1,5 +1,19 @@
 #!/usr/bin/env ruby
-DEVELOPMENT=true
+
+DEVELOPMENT=false
+
+require 'logger'
+require 'fileutils'
+
+FileUtils.mkdir_p "logs"
+
+logger = Logger.new('logs/logfile.log', 10, 1024000)
+
+if DEVELOPMENT
+   logger.level = Logger::DEBUG
+else
+   logger.level = Logger::WARN
+end
 
 begin
    require './lib/toy_robot.rb'
@@ -39,9 +53,13 @@ begin
 
    cli.start_interactive(world)
 rescue => e
+   # Top level catch all for truely unexpected errors as a line of last defense.
+
    if DEVELOPMENT
       raise
    else
+      logger.fatal e
+
       puts
       puts "‼ Whoops! Something really unexpected happened, and the program has crashed."
       puts
