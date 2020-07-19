@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-DEVELOPMENT=true
+DEVELOPMENT=false
 
 require './lib/toy_robot.rb'
 
@@ -23,11 +23,18 @@ puts banner
 
 options = ToyRobot::Cli.parse_options
 
-parser = ToyRobot::Parser.new
-reducer = ToyRobot::Reducer.new
+if DEVELOPMENT
+   puts "Started with options: #{options}"
+end
 
-world = ToyRobot::World.new(reducer, parser, options[:height], options[:width])
+world = ToyRobot::World.new(
+   ToyRobot::Reducer.new,
+   ToyRobot::Parser.new,
+   options[:width].to_i,
+   options[:height].to_i
+)
+
 robot = ToyRobot::Robot.new(world)
-
 cli = ToyRobot::Cli.new(robot)
+
 cli.start_interactive(world)
