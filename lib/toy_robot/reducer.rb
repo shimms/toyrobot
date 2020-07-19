@@ -1,34 +1,8 @@
 class ToyRobot::Reducer
     attr_accessor :history
 
-    module Directions
-        RIGHT = 1
-        LEFT = -1
-    end
-
-    module Bearings
-        NORTH = "north"
-        EAST = "east"
-        SOUTH = "south"
-        WEST = "west"
-
-        ALL = [
-            ToyRobot::Reducer::Bearings::NORTH, 
-            ToyRobot::Reducer::Bearings::EAST,
-            ToyRobot::Reducer::Bearings::SOUTH,
-            ToyRobot::Reducer::Bearings::WEST,
-        ]
-    end
-
     def initialize
         @history = []
-
-        @heading_mutators = {
-            ToyRobot::Reducer::Bearings::NORTH => {dx: 0, dy: 1},
-            ToyRobot::Reducer::Bearings::EAST => {dx: 1, dy: 0},
-            ToyRobot::Reducer::Bearings::SOUTH => {dx: 0, dy: -1},
-            ToyRobot::Reducer::Bearings::WEST => {dx: -1, dy: 0},
-        }
     end
 
     def perform(state: {}, action:)
@@ -60,15 +34,15 @@ class ToyRobot::Reducer
     end
 
     def right(state, payload)
-        turn(state, payload, ToyRobot::Reducer::Directions::RIGHT)
+        turn(state, payload, 1)
     end
 
     def left(state, payload)
-        turn(state, payload, ToyRobot::Reducer::Directions::LEFT)
+        turn(state, payload, -1)
     end
 
     def move(state, payload)
-        mutator = @heading_mutators[state[:direction]]
+        mutator = ToyRobot::Robot::HEADING_MUTATORS[state[:direction]]
 
         state[:x] = state[:x] + mutator[:dx]
         state[:y] = state[:y] + mutator[:dy]
@@ -77,8 +51,8 @@ class ToyRobot::Reducer
     end
 
     def turn(state, payload, direction)
-        slot = ToyRobot::Reducer::Bearings::ALL.find_index(state[:direction])
-        state[:direction] = ToyRobot::Reducer::Bearings::ALL.rotate(direction)[slot]
+        slot = ToyRobot::Robot::Bearings::ALL.find_index(state[:direction])
+        state[:direction] = ToyRobot::Robot::Bearings::ALL.rotate(direction)[slot]
 
         state
     end
