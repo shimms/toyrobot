@@ -38,13 +38,13 @@ RSpec.describe ToyRobot::Parser do
     describe "parsing command with argumnets" do
         context "when valid arguments are provided" do
             it "returns the correct action and arguments" do
-                expect(subject.parse("PLACE,1,2,NORTH")).to match({action: "PLACE", x: "1", y: "2", direction: "NORTH"})
+                expect(subject.parse("PLACE 1,2,NORTH")).to match({action: "PLACE", x: "1", y: "2", direction: "NORTH"})
             end
         end
 
         context "when invalid arguments are provided" do
             it "throws an error" do
-                expect { subject.parse("PLACE,1,2,DOWN") }.to raise_error.with_message("Expected one of [PLACE, ACTION] at line 1 char 1.")
+                expect { subject.parse("PLACE 1,2,DOWN") }.to raise_error.with_message("Expected one of [PLACE, ACTION] at line 1 char 1.")
             end
         end        
     end
