@@ -1,40 +1,51 @@
 #!/usr/bin/env ruby
+DEVELOPMENT=true
 
-DEVELOPMENT=false
+begin
+   require './lib/toy_robot.rb'
 
-require './lib/toy_robot.rb'
+   if DEVELOPMENT   
+      require 'byebug'
+   end
 
-if DEVELOPMENT   
-   require 'byebug'
+   banner = <<-EOS
+
+   ████████╗ ██████╗ ██╗   ██╗    ██████╗  ██████╗ ██████╗  ██████╗ ████████╗
+   ╚══██╔══╝██╔═══██╗╚██╗ ██╔╝    ██╔══██╗██╔═══██╗██╔══██╗██╔═══██╗╚══██╔══╝
+      ██║   ██║   ██║ ╚████╔╝     ██████╔╝██║   ██║██████╔╝██║   ██║   ██║   
+      ██║   ██║   ██║  ╚██╔╝      ██╔══██╗██║   ██║██╔══██╗██║   ██║   ██║   
+      ██║   ╚██████╔╝   ██║       ██║  ██║╚██████╔╝██████╔╝╚██████╔╝   ██║   
+      ╚═╝    ╚═════╝    ╚═╝       ╚═╝  ╚═╝ ╚═════╝ ╚═════╝  ╚═════╝    ╚═╝   
+                                                                           
+   EOS
+
+   puts banner
+
+   options = ToyRobot::Cli.parse_options
+
+   if DEVELOPMENT
+      puts "Started with options: #{options}"
+   end
+
+   world = ToyRobot::World.new(
+      ToyRobot::Reducer.new,
+      ToyRobot::Parser.new,
+      options[:width].to_i,
+      options[:height].to_i
+   )
+
+   robot = ToyRobot::Robot.new(world)
+   cli = ToyRobot::Cli.new(robot)
+
+   cli.start_interactive(world)
+rescue => e
+   if DEVELOPMENT
+      raise
+   else
+      puts
+      puts "‼ Whoops! Something really unexpected happened, and the program has crashed."
+      puts
+
+      exit 1
+   end
 end
-
-banner = <<-EOS
-
-████████╗ ██████╗ ██╗   ██╗    ██████╗  ██████╗ ██████╗  ██████╗ ████████╗
-╚══██╔══╝██╔═══██╗╚██╗ ██╔╝    ██╔══██╗██╔═══██╗██╔══██╗██╔═══██╗╚══██╔══╝
-   ██║   ██║   ██║ ╚████╔╝     ██████╔╝██║   ██║██████╔╝██║   ██║   ██║   
-   ██║   ██║   ██║  ╚██╔╝      ██╔══██╗██║   ██║██╔══██╗██║   ██║   ██║   
-   ██║   ╚██████╔╝   ██║       ██║  ██║╚██████╔╝██████╔╝╚██████╔╝   ██║   
-   ╚═╝    ╚═════╝    ╚═╝       ╚═╝  ╚═╝ ╚═════╝ ╚═════╝  ╚═════╝    ╚═╝   
-                                                                          
-EOS
-
-puts banner
-
-options = ToyRobot::Cli.parse_options
-
-if DEVELOPMENT
-   puts "Started with options: #{options}"
-end
-
-world = ToyRobot::World.new(
-   ToyRobot::Reducer.new,
-   ToyRobot::Parser.new,
-   options[:width].to_i,
-   options[:height].to_i
-)
-
-robot = ToyRobot::Robot.new(world)
-cli = ToyRobot::Cli.new(robot)
-
-cli.start_interactive(world)
