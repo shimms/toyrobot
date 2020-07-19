@@ -8,7 +8,7 @@ class ToyRobot::Robot
     
     NAMES = ['Gerty', 'Data', 'Lore', 'Robo', 'Giddi', 'B-4', 'Tet', 'Ava']
 
-    attr_accessor :world, :id, :name
+    attr_accessor :world, :id, :name, :state
     
     delegate [:reducer, :parser] => :@world
 
