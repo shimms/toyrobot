@@ -12,4 +12,8 @@ class ToyRobot::World
     def register_robot(robot)
         @robots[robot.id] = robot
     end
+
+    def within_bounds?(x, y)
+      (0..@width).include?(x) && (0..@height).include?(y)
+    end
 end
