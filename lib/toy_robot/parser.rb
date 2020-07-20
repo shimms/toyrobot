@@ -1,7 +1,7 @@
 require 'parslet' 
 
 class ToyRobot::Parser < Parslet::Parser
-    SIMPLE_VERBS = %w(MOVE LEFT RIGHT REPORT)
+    SIMPLE_VERBS = %w(MOVE LEFT RIGHT REPORT LOGS)
     COMPLEX_VERBS = %w(PLACE)
 
     def valid_commands
@@ -21,7 +21,7 @@ class ToyRobot::Parser < Parslet::Parser
     rule(:place) { stri("PLACE").as(:action) >> space >> integer.as(:x) >> comma >> integer.as(:y) >> comma >> direction}
     
     # Put it all together
-    rule(:valid_command) { place | move | left | right | report }
+    rule(:valid_command) { place | move | left | right | report | logs }
     root(:valid_command)
 
     def transform_input(input)
