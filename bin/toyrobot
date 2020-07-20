@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-DEVELOPMENT=true
+DEVELOPMENT=ENV["DEVELOPMENT"]
 
 begin
    require 'logger'
