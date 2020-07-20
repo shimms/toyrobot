@@ -1,45 +1,25 @@
 #!/usr/bin/env ruby
 
-DEVELOPMENT=false
+DEVELOPMENT=true
 
 begin
    require 'logger'
    require 'fileutils'
-
-   FileUtils.mkdir_p "logs"
-
-   logger = Logger.new('logs/logfile.log', 10, 1024000)
-
-   if DEVELOPMENT
-      logger.level = Logger::DEBUG
-   else
-      logger.level = Logger::WARN
-   end
-
    require './lib/toy_robot.rb'
 
-   if DEVELOPMENT   
-      require 'byebug'
-   end
-
-   banner = <<-EOS
-
-   ████████╗ ██████╗ ██╗   ██╗    ██████╗  ██████╗ ██████╗  ██████╗ ████████╗
-   ╚══██╔══╝██╔═══██╗╚██╗ ██╔╝    ██╔══██╗██╔═══██╗██╔══██╗██╔═══██╗╚══██╔══╝
-      ██║   ██║   ██║ ╚████╔╝     ██████╔╝██║   ██║██████╔╝██║   ██║   ██║   
-      ██║   ██║   ██║  ╚██╔╝      ██╔══██╗██║   ██║██╔══██╗██║   ██║   ██║   
-      ██║   ╚██████╔╝   ██║       ██║  ██║╚██████╔╝██████╔╝╚██████╔╝   ██║   
-      ╚═╝    ╚═════╝    ╚═╝       ╚═╝  ╚═╝ ╚═════╝ ╚═════╝  ╚═════╝    ╚═╝   
-                                                                           
-   EOS
-
-   puts banner
+   FileUtils.mkdir_p "logs"
+   logger = Logger.new('logs/logfile.log', 10, 1024000)
 
    options = ToyRobot::Cli.parse_options
 
    if DEVELOPMENT
+      logger.level = Logger::DEBUG
+      require 'byebug'
+
       puts "Started with options: #{options}"
-   end
+   else
+      logger.level = Logger::WARN
+   end   
 
    world = ToyRobot::World.new(
       options[:width].to_i,
@@ -47,9 +27,13 @@ begin
    )
 
    robot = ToyRobot::Robot.new(world, ToyRobot::Reducer.new)
-   cli = ToyRobot::Cli.new(ToyRobot::Parser.new, robot)
+   cli = ToyRobot::Cli.new(ToyRobot::Parser.new, robot, logger)
 
-   cli.start_interactive(world)
+   if $stdin.tty?   
+      cli.start_interactive
+   else
+      cli.start_stream($stdin)
+   end
 rescue => e
    # Top level catch all for truely unexpected errors as a line of last defense.
 

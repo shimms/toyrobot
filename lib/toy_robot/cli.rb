@@ -6,8 +6,8 @@ class ToyRobot::Cli
 
     attr_accessor :robot, :parser
 
-    def initialize(parser, robot)
-        @parser, @robot = parser, robot
+    def initialize(parser, robot, logger)
+        @parser, @robot, @logger = parser, robot, logger
     end
 
     def self.parse_options
@@ -36,7 +36,19 @@ class ToyRobot::Cli
         options
     end
 
-    def start_interactive(world)
+    def start_interactive
+        banner = <<-EOS
+
+        ████████╗ ██████╗ ██╗   ██╗    ██████╗  ██████╗ ██████╗  ██████╗ ████████╗
+        ╚══██╔══╝██╔═══██╗╚██╗ ██╔╝    ██╔══██╗██╔═══██╗██╔══██╗██╔═══██╗╚══██╔══╝
+           ██║   ██║   ██║ ╚████╔╝     ██████╔╝██║   ██║██████╔╝██║   ██║   ██║   
+           ██║   ██║   ██║  ╚██╔╝      ██╔══██╗██║   ██║██╔══██╗██║   ██║   ██║   
+           ██║   ╚██████╔╝   ██║       ██║  ██║╚██████╔╝██████╔╝╚██████╔╝   ██║   
+           ╚═╝    ╚═════╝    ╚═╝       ╚═╝  ╚═╝ ╚═════╝ ╚═════╝  ╚═════╝    ╚═╝   
+                                                                              
+        EOS
+
+        puts banner
         reader = TTY::Reader.new
 
         reader.on(:keyescape) do
@@ -47,23 +59,42 @@ class ToyRobot::Cli
         read_input(reader)
     end
 
+    def start_stream(stream)
+        read_stream(stream)
+
+        x, y = @robot.position
+        direction = @robot.direction.upcase
+        puts "#{x},#{y},#{direction}"
+        exit 0
+    end
+
     def read_input(reader)
         loop do
             input = reader.read_line('=> ').chomp
-            action = ToyRobot::ActionCreator.create(parser.transform_input(input))
-            
-            unless action.exists?
-                puts "Invalid command, please enter MOVE, LEFT, RIGHT, PLACE or REPORT."
-                next
-            end
 
-            result = @robot.execute(action)
+            read(input, ->(message) { puts message } )
+        end
+    end
 
-            puts result.message if result.message
-       end
+    def read_stream(stream)
+        while input = stream.gets("\n")&.strip
+            read(input, ->(message) { @logger.info(message) }, ->(message) { @logger.error(message) })    
+        end
     end
 
     private
+
+    def read(input, info, error = nil)
+        action = ToyRobot::ActionCreator.create(parser.transform_input(input))
+
+        if action.exists?
+            result = @robot.execute(action)
+
+            info.call(result.message) if result.message
+        else
+            (error || info).call "Invalid command, please enter MOVE, LEFT, RIGHT, PLACE or REPORT."
+        end
+    end
 
     def print_welcome
         puts "🤖 Welcome to Toy Robot."
