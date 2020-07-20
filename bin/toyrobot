@@ -2,20 +2,20 @@
 
 DEVELOPMENT=false
 
-require 'logger'
-require 'fileutils'
-
-FileUtils.mkdir_p "logs"
-
-logger = Logger.new('logs/logfile.log', 10, 1024000)
-
-if DEVELOPMENT
-   logger.level = Logger::DEBUG
-else
-   logger.level = Logger::WARN
-end
-
 begin
+   require 'logger'
+   require 'fileutils'
+
+   FileUtils.mkdir_p "logs"
+
+   logger = Logger.new('logs/logfile.log', 10, 1024000)
+
+   if DEVELOPMENT
+      logger.level = Logger::DEBUG
+   else
+      logger.level = Logger::WARN
+   end
+
    require './lib/toy_robot.rb'
 
    if DEVELOPMENT   
