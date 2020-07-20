@@ -92,7 +92,7 @@ class ToyRobot::Cli
 
             info.call(result.message) if result.message
         else
-            (error || info).call "Invalid command, please enter MOVE, LEFT, RIGHT, PLACE or REPORT."
+            (error || info).call "Invalid command, please enter one of: #{@parser.valid_commands.join(', ')}."
         end
     end
 

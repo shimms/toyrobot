@@ -30,7 +30,7 @@ RSpec.describe ToyRobot::Parser do
 
         context "when an ivalid command is provided" do
             it "throws an error" do
-                expect { subject.parse("FOOBAR") }.to raise_error.with_message("Expected one of [PLACE, ACTION] at line 1 char 1.")
+                expect { subject.parse("FOOBAR") }.to raise_error(Parslet::ParseFailed)
             end
         end
     end
@@ -44,7 +44,7 @@ RSpec.describe ToyRobot::Parser do
 
         context "when invalid arguments are provided" do
             it "throws an error" do
-                expect { subject.parse("PLACE 1,2,DOWN") }.to raise_error.with_message("Expected one of [PLACE, ACTION] at line 1 char 1.")
+                expect { subject.parse("PLACE 1,2,DOWN") }.to raise_error(Parslet::ParseFailed)
             end
         end        
     end
