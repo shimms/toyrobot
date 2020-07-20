@@ -6,7 +6,8 @@ class ToyRobot::Reducer
     end
 
     def perform(state: {}, action:)
-        self.history.push state.dup
+        old_state = state.dup
+        no_change = false
 
         case action.type
         when "place"
@@ -17,7 +18,11 @@ class ToyRobot::Reducer
             state = left(state, action)
         when "move"
             state = move(state, action)
+        else
+            no_change = true
         end
+
+        self.history.push(old_state) unless no_change
 
         state
     end

@@ -153,4 +153,24 @@ RSpec.describe ToyRobot::Reducer do
             end
         end
     end
+
+    describe "history" do
+        context "when the action updates state" do
+            let(:action) { ToyRobot::Actions::RightAction.new }
+            it "adds the previous state to history" do
+                subject.perform(state: {direction: "west"}, action: action)
+
+                expect(subject.history.length).to eq(1)
+            end
+        end
+
+        context "when the action does not update state" do
+            let(:action) { ToyRobot::Actions::ReportAction.new }
+            it "adds the previous state to history" do
+                subject.perform(state: {direction: "west"}, action: action)
+
+                expect(subject.history.length).to eq(0)
+            end
+        end
+    end    
 end
