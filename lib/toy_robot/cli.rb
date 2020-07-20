@@ -4,10 +4,10 @@ require 'tty-reader'
 class ToyRobot::Cli
     DEFAULT_WIDTH, DEFAULT_HEIGHT = [5,5]
 
-    attr_accessor :robot
+    attr_accessor :robot, :parser
 
-    def initialize(robot)
-        @robot = robot
+    def initialize(parser, robot)
+        @parser, @robot = parser, robot
     end
 
     def self.parse_options
@@ -50,18 +50,16 @@ class ToyRobot::Cli
     def read_input(reader)
         loop do
             input = reader.read_line('=> ').chomp
-            action = @robot.create_action(input)
-
-            if action.nil?
+            action = ToyRobot::ActionCreator.create(parser.transform_input(input))
+            
+            unless action.exists?
                 puts "Invalid command, please enter MOVE, LEFT, RIGHT, PLACE or REPORT."
                 next
             end
 
             result = @robot.execute(action)
 
-            if result && result.key?(:message)
-                puts result[:message]
-            end
+            puts result.message if result.message
        end
     end
 

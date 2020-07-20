@@ -19,10 +19,7 @@ class ToyRobot::Parser < Parslet::Parser
 
     def transform_input(input)
         begin
-            command = ToyRobot::Transformer.new.apply(parse(input))
-            action = command.delete(:action)
-
-            { type: action.to_s.downcase, payload: command || {} }
+            ToyRobot::Transformer.new.apply(parse(input))
         rescue Parslet::ParseFailed => e
             nil
         end

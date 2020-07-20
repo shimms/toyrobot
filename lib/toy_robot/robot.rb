@@ -21,33 +21,30 @@ class ToyRobot::Robot
         ]
     end
 
-    HEADING_MUTATORS = {
-        ToyRobot::Robot::Bearings::NORTH => {dx: 0, dy: 1},
-        ToyRobot::Robot::Bearings::EAST => {dx: 1, dy: 0},
-        ToyRobot::Robot::Bearings::SOUTH => {dx: 0, dy: -1},
-        ToyRobot::Robot::Bearings::WEST => {dx: -1, dy: 0},
-    }
-
     attr_accessor :world, :id, :name, :state
     
-    delegate [:reducer, :parser] => :@world
+    def initialize(world, reducer)
+        @world, @reducer = world, reducer
 
-    def initialize(world)
-        @world = world
         @id = SecureRandom.uuid
-        @name = NAMES.sample
-        @state = INITIAL_STATE
+        @name = ToyRobot::Robot::NAMES.sample
+        @state = ToyRobot::Robot::INITIAL_STATE
 
         @world.register_robot(self)
     end
 
     def execute(action)
-        valid, errors = action_valid?(action)
+        action.validate!(self)
 
-        return create_action_response(errors) unless valid
-        return create_action_response(report) if action[:type] == "report"
+        @state = @reducer.perform(state: @state, action: action)
 
-        @state = reducer.perform(state: @state, action: action)
+        return ToyRobot::ActionResult.new(success: true, message: action.query(self))
+    rescue ToyRobot::InvalidActionError => e
+        return ToyRobot::ActionResult.new(success: false, message: e.message)
+    end
+
+    def placed?
+        @state[:placed]
     end
 
     def position
@@ -58,46 +55,7 @@ class ToyRobot::Robot
         @state[:direction]
     end
 
-    def report
-        x, y = position
-
-        "#{x},#{y},#{direction.upcase}"
-    end
-
-    def create_action_response(message)
-        { message: message }
-    end
-
-    def create_action(input)
-        self.parser.transform_input(input)
-    end
-
-    def action_valid?(action)
-        return [false, "Must place #{@name} before issuing other commands"] if action[:type] != "place" && @state[:placed] == false
-
-        case action[:type]
-        when "place"
-            return validate_place(action[:payload])
-        when "move"
-            return validate_move
-        else
-            [true, nil]
-        end
-    end
-
-    private
-
-    def validate_place(payload)
-        return [false, "I'm sorry Dave, I'm afraid I can't do that."] unless @world.within_bounds?(payload[:x], payload[:y])
-
-        [true, nil]
-    end
-
-    def validate_move
-        mutator = ToyRobot::Robot::HEADING_MUTATORS[@state[:direction]]
-        
-        return [false, "I'm sorry Dave, I'm afraid I can't do that."] unless @world.within_bounds?(@state[:x] + mutator[:dx], @state[:y] + mutator[:dy])
-
-        [true, nil]
+    def can_be_placed_at?(x, y)
+        @world.within_bounds?(x, y)
     end
 end

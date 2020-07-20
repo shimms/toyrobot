@@ -2,15 +2,13 @@ require 'spec_helper'
 
 RSpec.describe ToyRobot::World do
     let(:reducer) { double(ToyRobot::Reducer)}
-    let(:parser) { double(ToyRobot::Parser)}
-    
-    subject { ToyRobot::World.new(reducer, parser, 5, 5)}
+    subject { ToyRobot::World.new(5, 5)}
 
     describe "register_robot" do
         it "successfully registers the robot" do
             expect(subject.robots).to be_empty
 
-            subject.register_robot(ToyRobot::Robot.new(subject))
+            subject.register_robot(ToyRobot::Robot.new(subject, reducer))
 
             expect(subject.robots.count).to eq(1)
         end

@@ -8,15 +8,15 @@ class ToyRobot::Reducer
     def perform(state: {}, action:)
         self.history.push state.dup
 
-        case action[:type]
+        case action.type
         when "place"
-            state = place(state, action[:payload])
+            state = place(state, action)
         when "right"
-            state = right(state, action[:payload])
+            state = right(state, action)
         when "left"
-            state = left(state, action[:payload])
+            state = left(state, action)
         when "move"
-            state = move(state, action[:payload])
+            state = move(state, action)
         end
 
         state
@@ -24,7 +24,9 @@ class ToyRobot::Reducer
 
     private
     
-    def place(state, payload)
+    def place(state, action)
+        payload = action.payload
+        
         state[:placed] = true
         state[:x] = payload[:x]
         state[:y] = payload[:y]
@@ -33,16 +35,16 @@ class ToyRobot::Reducer
         state
     end
 
-    def right(state, payload)
-        turn(state, payload, 1)
+    def right(state, action)
+        turn(state, action, 1)
     end
 
-    def left(state, payload)
-        turn(state, payload, -1)
+    def left(state, action)
+        turn(state, action, -1)
     end
 
-    def move(state, payload)
-        mutator = ToyRobot::Robot::HEADING_MUTATORS[state[:direction]]
+    def move(state, action)
+        mutator = action.heading_mutators[state[:direction]]
 
         state[:x] = state[:x] + mutator[:dx]
         state[:y] = state[:y] + mutator[:dy]
@@ -50,7 +52,7 @@ class ToyRobot::Reducer
         state
     end
 
-    def turn(state, payload, direction)
+    def turn(state, action, direction)
         slot = ToyRobot::Robot::Bearings::ALL.find_index(state[:direction])
         state[:direction] = ToyRobot::Robot::Bearings::ALL.rotate(direction)[slot]
 

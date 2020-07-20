@@ -42,14 +42,12 @@ begin
    end
 
    world = ToyRobot::World.new(
-      ToyRobot::Reducer.new,
-      ToyRobot::Parser.new,
       options[:width].to_i,
       options[:height].to_i
    )
 
-   robot = ToyRobot::Robot.new(world)
-   cli = ToyRobot::Cli.new(robot)
+   robot = ToyRobot::Robot.new(world, ToyRobot::Reducer.new)
+   cli = ToyRobot::Cli.new(ToyRobot::Parser.new, robot)
 
    cli.start_interactive(world)
 rescue => e

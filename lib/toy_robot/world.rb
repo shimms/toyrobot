@@ -1,9 +1,7 @@
 class ToyRobot::World
-    attr_accessor :width, :height, :parser, :robots, :reducer
+    attr_accessor :width, :height, :robots
 
-    def initialize(reducer, parser, width, height)
-        @reducer = reducer
-        @parser = parser
+    def initialize(width, height)
         @width = width
         @height = height
         @robots = {}
