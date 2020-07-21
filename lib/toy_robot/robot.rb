@@ -58,4 +58,8 @@ class ToyRobot::Robot
     def can_be_placed_at?(x, y)
         @world.within_bounds?(x, y)
     end
+
+    def logs
+        @reducer.history
+    end
 end
